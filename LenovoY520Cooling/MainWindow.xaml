@@ -17,21 +17,21 @@
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Row="0" Margin="0,0,0,10">
             <Label Content="Turn On Temp (°C):" Width="120" VerticalAlignment="Center" Foreground="Black"/>
-            <Slider Value="{Binding maxTemp}" x:Name="MaxTempSlider" Minimum="30" Maximum="100" Width="150" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"/>
+            <Slider Value="{Binding maxTemp}" ValueChanged="UpdateSettings" x:Name="MaxTempSlider" Minimum="30" Maximum="100" Width="150" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"/>
             <TextBlock Width="40" Text="{Binding ElementName=MaxTempSlider, Path=Value,StringFormat={}{0:N0} °C}" VerticalAlignment="Center" Margin="5,0,0,0"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Row="1">
             <Label Content="Turn Off Temp (°C):" Width="120" VerticalAlignment="Center" Foreground="Black"/>
-            <Slider Value="{Binding minTemp}" x:Name="MinTempSlider" Minimum="30" Maximum="100" Width="150" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+            <Slider Value="{Binding minTemp}" ValueChanged="UpdateSettings" x:Name="MinTempSlider" Minimum="30" Maximum="100" Width="150" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
             <TextBlock Width="40" Text="{Binding ElementName=MinTempSlider, Path=Value, StringFormat={}{0:N0} °C}" VerticalAlignment="Center" Margin="5,0,0,0"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Row="2">
             <Viewbox Width="25" Height="25">
-                <CheckBox IsChecked="{Binding startMinimized}" Padding="0" HorizontalAlignment="Center"  VerticalAlignment="Center"></CheckBox>
+                <CheckBox IsChecked="{Binding startMinimized}" Checked="UpdateSettings" Padding="0" HorizontalAlignment="Center"  VerticalAlignment="Center"></CheckBox>
             </Viewbox>
             <TextBlock Text="Start minimized." Width="120" VerticalAlignment="Center" Foreground="Black"/>
             <Viewbox Width="25" Height="25">
-                <CheckBox IsChecked="{Binding startWithWindows}" Padding="0" HorizontalAlignment="Center"  VerticalAlignment="Center"></CheckBox>
+                <CheckBox IsChecked="{Binding startWithWindows}" Checked="UpdateSettings" Padding="0" HorizontalAlignment="Center"  VerticalAlignment="Center"></CheckBox>
             </Viewbox>
             <TextBlock Text="Start with windows." Width="120" VerticalAlignment="Center" Foreground="Black"/>
         </StackPanel>

@@ -32,6 +32,11 @@ namespace LenovoY520Cooling
             this.DataContext = ConfigsSection;
         }
 
+        private void UpdateSettings(object sender, RoutedEventArgs e)
+        {
+            AppConfig.Save();
+        }
+
         public virtual void ShowInCorner()
         {
             var workingArea = SystemParameters.WorkArea;
