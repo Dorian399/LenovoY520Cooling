@@ -17,6 +17,7 @@ namespace LenovoY520Cooling
     {
         private static Mutex? _mutex;
         private static NotifyIconService? _notifyIconService;
+        Configuration AppConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
         protected override void OnStartup(StartupEventArgs e)
         {
             bool createdNew;
@@ -29,8 +30,21 @@ namespace LenovoY520Cooling
                 return;
             }
 
+            if (AppConfig.Sections["Configs"] == null)
+            {
+                AppConfig.Sections.Add("Configs", new Configs());
+            }
+
+            var configs = AppConfig.GetSection("Configs") as Configs;
+
             MainWindow MainWindow = new MainWindow();
+
             MainWindow.Show();
+
+            if (configs.startMinimized)
+            {
+                MainWindow.Hide();
+            }
 
             _notifyIconService = new LocalNotifyIconService();
             _notifyIconService.SetParentWindow(MainWindow);
@@ -67,7 +81,7 @@ namespace LenovoY520Cooling
 
             _notifyIconService.Register();
 
-            base.OnStartup(e);
+                base.OnStartup(e);
         }
     }
 

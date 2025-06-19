@@ -34,6 +34,19 @@ namespace LenovoY520Cooling
 
         private void UpdateSettings(object sender, RoutedEventArgs e)
         {
+            var config = AppConfig.GetSection("Configs") as Configs;
+
+            if (config == null)
+            {
+                System.Windows.MessageBox.Show("Could not load configuration.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (config.minTemp > config.maxTemp) {
+                System.Windows.MessageBox.Show("Turn off temp cannot be higher than turn on temp.","Invalid Configuration", MessageBoxButton.OK, MessageBoxImage.Warning);
+                config.minTemp = Math.Clamp(config.maxTemp - 1, 30, 100);
+                MinTempSlider.Value = config.minTemp;
+            }
             AppConfig.Save();
         }
 
