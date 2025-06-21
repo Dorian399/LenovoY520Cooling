@@ -47,7 +47,9 @@ namespace LenovoY520Cooling
                 config.minTemp = Math.Clamp(config.maxTemp - 1, 30, 100);
                 MinTempSlider.Value = config.minTemp;
             }
+
             AppConfig.Save();
+            App.UpdateConfigs();
         }
 
         public virtual void ShowInCorner()

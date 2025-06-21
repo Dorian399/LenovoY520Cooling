@@ -1,5 +1,6 @@
 ﻿using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows;
@@ -17,7 +18,41 @@ namespace LenovoY520Cooling
     {
         private static Mutex? _mutex;
         private static NotifyIconService? _notifyIconService;
-        Configuration AppConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+        private static Configuration AppConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+
+        public static void UpdateConfigs()
+        {
+            AppConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+        }
+        private Configs configs
+        {
+            get
+            {
+                return AppConfig.GetSection("Configs") as Configs;
+            }
+        }
+
+        protected async Task StartBackgroundServiceAsync()
+        {
+            var timer = new PeriodicTimer(TimeSpan.FromSeconds(2));
+            while (await timer.WaitForNextTickAsync())
+            {
+                int? AVGCPUTemp = CPUInfo.GetAVGTemp(8);
+                if(AVGCPUTemp != null)
+                {
+                    Configs curConf = configs;
+
+                    if (AVGCPUTemp >= curConf.maxTemp)
+                    {
+                        ExtremeCooling.SetEnabled(true);
+                    }
+                    else if (AVGCPUTemp <= curConf.minTemp)
+                    {
+                        ExtremeCooling.SetEnabled(false);
+                    }
+                }
+            }
+        }
         protected override void OnStartup(StartupEventArgs e)
         {
             bool createdNew;
@@ -30,12 +65,12 @@ namespace LenovoY520Cooling
                 return;
             }
 
-            if (AppConfig.Sections["Configs"] == null)
+            if (!ExtremeCooling.Exists())
             {
-                AppConfig.Sections.Add("Configs", new Configs());
+                System.Windows.MessageBox.Show("Your device is incompatible", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown();
+                return;
             }
-
-            var configs = AppConfig.GetSection("Configs") as Configs;
 
             MainWindow MainWindow = new MainWindow();
 
@@ -81,7 +116,9 @@ namespace LenovoY520Cooling
 
             _notifyIconService.Register();
 
-                base.OnStartup(e);
+            StartBackgroundServiceAsync();
+
+            base.OnStartup(e);
         }
     }
 
