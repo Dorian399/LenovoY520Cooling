@@ -25,6 +25,7 @@ namespace LenovoY520Cooling
         private static NotifyIconService? _notifyIconService;
         private static Configuration AppConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
         private static bool TaskScheduled = false;
+        private static bool ExtremeCoolingEnabled = false;
 
         public static void UpdateConfigs()
         {
@@ -101,13 +102,15 @@ namespace LenovoY520Cooling
                 {
                     Configs curConf = configs;
 
-                    if (AVGCPUTemp >= curConf.maxTemp)
+                    if (AVGCPUTemp >= curConf.maxTemp && !ExtremeCoolingEnabled)
                     {
                         ExtremeCooling.SetEnabled(true);
+                        ExtremeCoolingEnabled = true;
                     }
-                    else if (AVGCPUTemp <= curConf.minTemp)
+                    else if (AVGCPUTemp <= curConf.minTemp && ExtremeCoolingEnabled)
                     {
                         ExtremeCooling.SetEnabled(false);
+                        ExtremeCoolingEnabled = false;
                     }
                 }
             }
@@ -175,9 +178,17 @@ namespace LenovoY520Cooling
 
             _notifyIconService.Register();
 
+            CPUInfo.OpenComputer();
+
             StartBackgroundServiceAsync();
 
             base.OnStartup(e);
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            CPUInfo.CloseComputer();
+            base.OnExit(e);
         }
     }
 

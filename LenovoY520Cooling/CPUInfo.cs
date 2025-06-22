@@ -13,14 +13,27 @@ namespace LenovoY520Cooling
     {
         private static int CPUTempSum = 0;
         private static int sampleCount = 0;
+        private static LibreHardwareMonitor.Hardware.Computer? computer;
 
-        public static int? GetTemp()
+        public static void OpenComputer()
         {
-            Computer computer = new Computer()
+            computer = new Computer()
             {
                 IsCpuEnabled = true
             };
             computer.Open();
+        }
+
+        public static void CloseComputer()
+        {
+            if (computer != null)
+                computer.Close();
+        }
+
+        public static int? GetTemp()
+        {
+            if (computer == null)
+                return null;
 
             foreach (var hardware in computer.Hardware)
             {
