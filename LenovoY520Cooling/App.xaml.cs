@@ -1,11 +1,16 @@
-﻿using System.Configuration;
+﻿using Microsoft.VisualBasic.ApplicationServices;
+using Microsoft.Win32.TaskScheduler;
+using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Security.Principal;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using System.Windows.Resources;
 using Wpf.Ui.Input;
 using Wpf.Ui.Tray;
 
@@ -19,6 +24,7 @@ namespace LenovoY520Cooling
         private static Mutex? _mutex;
         private static NotifyIconService? _notifyIconService;
         private static Configuration AppConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+        private static bool TaskScheduled = false;
 
         public static void UpdateConfigs()
         {
@@ -32,7 +38,60 @@ namespace LenovoY520Cooling
             }
         }
 
-        protected async Task StartBackgroundServiceAsync()
+        public static void ScheduleStartUpTask()
+        {
+            if (TaskScheduled)
+                return;
+
+            TaskService ts = new TaskService();
+            Uri uri = new Uri("pack://application:,,,/task.xml");
+            StreamResourceInfo streamInfo = System.Windows.Application.GetResourceStream(uri);
+            string xml = "";
+
+            if (streamInfo != null)
+            {
+                using StreamReader reader = new StreamReader(streamInfo.Stream);
+                xml = reader.ReadToEnd();
+            }
+            else
+            {
+                return;
+            }
+
+            TaskDefinition taskDef = ts.NewTask();
+            taskDef.XmlText = xml;
+
+            taskDef.Actions.Clear();
+            taskDef.Actions.Add(new ExecAction(System.Environment.ProcessPath));
+
+            ts.RootFolder.RegisterTaskDefinition(
+                "LenovoY520Cooling",
+                taskDef,
+                TaskCreation.CreateOrUpdate,
+                null,
+                null,
+                TaskLogonType.InteractiveToken,
+                null
+            );
+            TaskScheduled = true;
+        }
+
+        public static void CancelStartUpTask()
+        {
+            TaskScheduled = false;
+
+            TaskService ts = new TaskService();
+            try
+            {
+                ts.RootFolder.DeleteTask("LenovoY520Cooling");
+            }
+            catch (Exception)
+            {
+                return;
+            }
+        }
+
+        protected async System.Threading.Tasks.Task StartBackgroundServiceAsync()
         {
             var timer = new PeriodicTimer(TimeSpan.FromSeconds(2));
             while (await timer.WaitForNextTickAsync())
@@ -53,7 +112,7 @@ namespace LenovoY520Cooling
                 }
             }
         }
-        protected override void OnStartup(StartupEventArgs e)
+        protected override void OnStartup(System.Windows.StartupEventArgs e)
         {
             bool createdNew;
             _mutex = new Mutex(true, "65834ef0-510d-4193-8447-f1067184e9cf", out createdNew);

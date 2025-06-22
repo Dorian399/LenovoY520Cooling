@@ -9,6 +9,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Configuration;
+using System.Diagnostics;
 
 namespace LenovoY520Cooling
 {
@@ -34,22 +35,31 @@ namespace LenovoY520Cooling
 
         private void UpdateSettings(object sender, RoutedEventArgs e)
         {
-            var config = AppConfig.GetSection("Configs") as Configs;
+            var configs = AppConfig.GetSection("Configs") as Configs;
 
-            if (config == null)
+            if (configs == null)
             {
-                System.Windows.MessageBox.Show("Could not load configuration.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            if (config.minTemp > config.maxTemp) {
+            if (configs.minTemp > configs.maxTemp) {
                 System.Windows.MessageBox.Show("Turn off temp cannot be higher than turn on temp.","Invalid Configuration", MessageBoxButton.OK, MessageBoxImage.Warning);
-                config.minTemp = Math.Clamp(config.maxTemp - 1, 30, 100);
-                MinTempSlider.Value = config.minTemp;
+                configs.minTemp = Math.Clamp(configs.maxTemp - 1, 30, 100);
+                MinTempSlider.Value = configs.minTemp;
+            }
+
+            if (configs.startWithWindows)
+            {
+                App.ScheduleStartUpTask();
+            }
+            else
+            {
+                App.CancelStartUpTask();
             }
 
             AppConfig.Save();
             App.UpdateConfigs();
+
         }
 
         public virtual void ShowInCorner()
@@ -65,6 +75,11 @@ namespace LenovoY520Cooling
         {
             e.Cancel = true;
             this.Hide();
+        }
+
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
