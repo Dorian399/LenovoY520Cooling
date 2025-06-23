@@ -147,6 +147,7 @@ namespace LenovoY520Cooling
             _notifyIconService.SetParentWindow(MainWindow);
             BitmapImage notifyIconImage = new(new Uri("pack://application:,,,/icon.ico"));
             _notifyIconService.Icon = notifyIconImage;
+            _notifyIconService.TooltipText = "LenovoY520Cooling";
             _notifyIconService.ContextMenu = new ContextMenu
             {
                 Items =
