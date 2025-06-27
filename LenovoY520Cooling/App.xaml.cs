@@ -1,10 +1,12 @@
 ﻿using Microsoft.VisualBasic.ApplicationServices;
+using Microsoft.Win32;
 using Microsoft.Win32.TaskScheduler;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
 using System.Windows;
@@ -147,6 +149,16 @@ namespace LenovoY520Cooling
             _notifyIconService.SetParentWindow(MainWindow);
             BitmapImage notifyIconImage = new(new Uri("pack://application:,,,/icon.ico"));
             _notifyIconService.Icon = notifyIconImage;
+
+            // Fix for blurry icon
+            SystemEvents.DisplaySettingsChanged += async (sender, eventArgs) => {
+                _notifyIconService.Unregister();
+                BitmapImage notifyIconImage = new(new Uri("pack://application:,,,/icon.ico"));
+                _notifyIconService.Icon = notifyIconImage;
+                await System.Threading.Tasks.Task.Delay(3000);
+                _notifyIconService.Register();
+            };
+
             _notifyIconService.TooltipText = "LenovoY520Cooling";
             _notifyIconService.ContextMenu = new ContextMenu
             {
