@@ -42,7 +42,7 @@ namespace LenovoY520Cooling
                     hardware.Update();
                     foreach (var sensor in hardware.Sensors)
                     {
-                        if (sensor.SensorType == SensorType.Temperature && sensor.Name.ToLower().Contains("cpu"))
+                        if (sensor.SensorType == SensorType.Temperature && sensor.Name == "CPU Package")
                         {
                             if (sensor.Value == null)
                                 return null;
