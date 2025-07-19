@@ -193,6 +193,8 @@ namespace LenovoY520Cooling
 
             CPUInfo.OpenComputer();
 
+            ExtremeCooling.SetEnabled(false);
+
             StartBackgroundServiceAsync();
 
             base.OnStartup(e);
@@ -200,6 +202,7 @@ namespace LenovoY520Cooling
 
         protected override void OnExit(ExitEventArgs e)
         {
+            ExtremeCooling.SetEnabled(false);
             CPUInfo.CloseComputer();
             base.OnExit(e);
         }
